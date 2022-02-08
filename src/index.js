@@ -2,98 +2,50 @@ import $ from 'jquery';
 import 'bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './css/styles.css';
+import Search from './js/search.js';
+import Trending from './js/trending';
+import Random from './js/random';
 
-$(document).ready(function(){
-  $("#search").click(function(event){
-    event.preventDefault();
-    const input = $("#input").val();
-    const url = `https://api.giphy.com/v1/gifs/search?q=${input}&api_key=${process.env.API_KEY}`;
-    let request = new XMLHttpRequest();
-    request.onreadystatechange = function () {
-      if (this.readyState === 4 && this.status === 200) {
-        const response = JSON.parse(this.responseText);
-        getElements(response);
-      }
-    };
-    request.open("GET", url, true);
-    request.send();
+let clearInput = () => {
+  $('#search').val("");
+};
 
-    function getElements(response){
-      let myImg = response.data[0].images.original.url;
+$(document).ready(function() {
+  $("#search").click(function() {
+    let input = $("#input").val();
+    clearInput();
+    let promise = Search.getImage(input);
+    promise.then(function(response) {
+      const body = JSON.parse(response);
+      const myImg = body.data[0].images.original.url;
       let htmlString = `<img src="${myImg}">`;
       $(".imgURL").html(htmlString);
-    }
+    },function(error) {
+      console.log(error);
+    });
   });
-  $("#trending").click(function(event){
-    event.preventDefault();
-    const url = `http://api.giphy.com/v1/gifs/trending?&api_key=${process.env.API_KEY}`;
-    let request = new XMLHttpRequest();
-    request.onreadystatechange = function () {
-      if (this.readyState === 4 && this.status === 200) {
-        const response = JSON.parse(this.responseText);
-        getElements(response);
-      }
-    };
-    request.open("GET", url, true);
-    request.send();
 
-    function getElements(response){
-      let myImg = response.data[0].images.original.url;
-      let htmlString = `<img src="${myImg}">`;
-      $(".imgURL").html(htmlString);
-    }
+  $("#trending").click(function(){
+    let promise2 = Trending.getTrend();
+    promise2.then(function(response){
+      const body2 = JSON.parse(response);
+      let myImg2 = body2.data[0].images.original.url;
+      let htmlString = `<img src="${myImg2}">`;
+      $(".imgURL").html(htmlString); 
+    },function(error) {
+      console.log(error);
+    }); 
   });
-  $("#random").click(function(event){
-    event.preventDefault();
-    const url = `http://api.giphy.com/v1/gifs/random?&api_key=${process.env.API_KEY}`;
-    let request = new XMLHttpRequest();
-    request.onreadystatechange = function () {
-      if (this.readyState === 4 && this.status === 200) {
-        const response = JSON.parse(this.responseText);
-        getElements(response);
-      }
-    };
-    request.open("GET", url, true);
-    request.send();
 
-    function getElements(response){
-      let myImg = response.data.images.original.url;
-      let htmlString = `<img src="${myImg}">`;
+  $("#random").click(function(){
+    let promise3 = Random.getRandom();
+    promise3.then(function(response){
+      const body3 = JSON.parse(response);
+      let myImg3 = body3.data.images.original.url;
+      let htmlString = `<img src="${myImg3}">`;
       $(".imgURL").html(htmlString);
-    }
+    }, function(error) {
+      console.log(error);
+    });
   });
 });
-  // $("#upload").click(function(event){
-  //   event.preventDefault();
-  //   input = "https://c.tenor.com/5LT51B0DSIoAAAAM/funny-animals-dog.gif";
-  //   const url = `http://upload.giphy.com/v1/gifs/source_image_url:${input}&api_key=${process.env.API_KEY}`;
-  //   let request = new XMLHttpRequest();
-  //   request.onreadystatechange = function () {
-  //     if (this.readyState === 4 && this.status === 200) {
-  //       const response = JSON.parse(this.responseText);
-  //       getElements(response);
-  //     }
-  //   };
-  //   request.open("GET", url, true);
-  //   request.send();
-
-  //   function getElements(response){
-  //     let myImg = response.data.images.original.url;
-  //     let htmlString = `<img src="${myImg}">`;
-  //     $(".imgURL").html(htmlString);
-  //   }
-  // });
-
-// function getElements(response) {
-//   $(".showHumidity").text(
-//     `The humidity in ${city} is ${response.main.humidity}%`
-//   );
-//   $(".showTemp").text(
-//     `The temperature in Farenheit is ${response.main.temp} degrees.`
-//   );
-//   $(".showPressure").text(
-//     `The pressure is ${response.main.pressure} units.`
-//   );
-//   $(".showWindSpeed").text(`The wind speed is ${response.wind.speed} MPH.`);
-//   $(".showFeelsLike").text(
-//     `The temperature feels like ${response.main.feels_like} degrees.`
